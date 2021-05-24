@@ -7,42 +7,63 @@ import img from "gulp-imagemin";
 import autoprefixer from "gulp-autoprefixer";
 import bro from "gulp-bro";
 import babelify from "babelify";
-import browserSync from "browser-sync";
+
+const paths = {
+    dev:{
+        images :"./src/images/**",
+        html : "./src/html/*.pug",
+        sass:'./src/sass/*.scss',
+        mainJs :'./src/js/**/*.js',
+        css:'./src/css/**',
+        font:'./src/fonts/**'
+    },
+    pub:{
+        images :"./dist/images",
+        html : "./dist",
+        sass:'./dist/css',
+        mainJs :'./dist/js',
+        font:'./dist/fonts'
+    },
+    watch:{
+        images :"./src/images/**",
+        html : "./src/html/**/*.pub",
+        sass:'./src/sass/**/*.scss',
+        mainJs :'./src/js/**/*.js',
+        css:'./src/css/**',
+        font:"./src/fonts/**"
+    },
+    
+}
 
 // clean
 const clean = () => 
     del(["dist/*"]);
-
-
-
+// fonts
+const fonts =()=>
+    gulp.src(paths.dev.font).pipe(gulp.dest(paths.pub.font))
 // image
 const image = () => 
-    gulp.src("./src/images/*").pipe(img()).pipe(gulp.dest("./dist/images"));
-
-
+    gulp.src(paths.dev.images).pipe(img()).pipe(gulp.dest(paths.pub.images));
 
 // pug
 const pug = () => 
-    gulp.src("./src/html/**")
+    gulp.src(paths.dev.html)
         .pipe(gulppug())
-        .pipe(gulp.dest("./dist"))
-        .pipe(browserSync.reload({ stream: true }));
-
-
-
+        .pipe(gulp.dest(paths.pub.html))
 
 // sass
 const sass = () => 
-    gulp.src("./src/sass/**")
+    gulp.src(paths.dev.sass)
         .pipe(gulpsass())
         .pipe(autoprefixer())
-        .pipe(gulp.dest("./dist/css"))
-        .pipe(browserSync.reload({ stream: true }));
+        .pipe(gulp.dest(paths.pub.sass))
 
-
+    gulp.src(paths.dev.css)
+        .pipe(autoprefixer())
+        .pipe(gulp.dest(paths.pub.sass))
 // js
 const js = () => 
-    gulp.src("./src/js/*.js")
+    gulp.src(paths.dev.mainJs)
         .pipe(
             bro({
                 transform: [
@@ -51,45 +72,32 @@ const js = () =>
                 ],
             })
         )
-        .pipe(gulp.dest("./dist/js"))
-        .pipe(browserSync.reload({ stream: true }));
+        .pipe(gulp.dest(paths.pub.mainJs))
 
-const subPageJs = () => 
-    gulp.src("./src/js/page/*.js")
-        .pipe(
-            bro({
-                transform: [
-                    babelify.configure({ presets: ["@babel/preset-env"] }),
-                    ["uglifyify", { global: true }],
-                ],
-            })
-        )
-        .pipe(gulp.dest("./dist/js/page"))
-        .pipe(browserSync.reload({ stream: true }));
 
 // server
 const webserver = () => 
     webs.server({
-        root: "./dist", //루트 위치
+        root: paths.pub.html, //루트 위치
         livereload: true,
         port: 8001,
     });
 
- 
-
-
 // watch
 const watch = () => 
-    gulp.watch("./src/html/*.pug", pug);
-    gulp.watch("./src/sass/**", sass);
-    gulp.watch("./src/js/*.js", js);
-    gulp.watch("./src/js/**/*.js", subPageJs);
+    gulp.watch(paths.watch.html, pug);
+    gulp.watch(paths.watch.sass, sass);
+    gulp.watch(paths.watch.css, sass);
+    gulp.watch(paths.watch.mainJs, js);
+    gulp.watch(paths.watch.images,image);
+    gulp.watch(paths.watch.font,fonts);
+
 
 // clean,image
-const prepare = gulp.series([clean, image]);
+const prepare = gulp.series([clean, image,fonts]);
 
 // pug,sass,js
-const assets = gulp.series([pug, sass, js,subPageJs]);
+const assets = gulp.series([pug, sass, js]);
 
 // 서버on watch
 const postDev = gulp.parallel([webserver, watch]);
