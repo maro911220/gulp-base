@@ -1,0 +1,11 @@
+@mixin mq($size) {
+    @if $size == '1024' {
+        @media (max-width:1024px){
+            @content;
+        }
+    }@else if $size == '670' {
+        @media (max-width:670px){
+            @content;
+        }
+    }
+}

@@ -29,5 +29,9 @@
     "gulp-webserver": "^0.9.1",
     "uglify-js": "^3.13.7",
     "uglifyify": "^5.0.2"
-  }
+    
+  },
+  "browserslist": [
+    "last 2 versions"
+  ]
 }

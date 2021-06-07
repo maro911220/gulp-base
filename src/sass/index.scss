@@ -1,4 +1,15 @@
-body{
-    background-color: blue;
-    
+@import "include/reset";
+@import "include/mixin";
+@import url("https://fonts.googleapis.com/css2?family=Staatliches&display=swap");
+// reset, mixin , fonts
+
+.flex{
+    width: 100%;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    flex-direction: column;
+    div{
+        border:1px solid black;
+    }
 }

@@ -15,22 +15,25 @@ const paths = {
         sass:'./src/sass/*.scss',
         mainJs :'./src/js/**/*.js',
         css:'./src/css/**',
-        font:'./src/fonts/**'
+        font:'./src/fonts/**',
+        plugin:'./src/plugin/**'
     },
     pub:{
         images :"./dist/images",
         html : "./dist",
         sass:'./dist/css',
         mainJs :'./dist/js',
-        font:'./dist/fonts'
+        font:'./dist/fonts',
+        plugin:'./dist/plugin'
     },
     watch:{
         images :"./src/images/**",
-        html : "./src/html/**/*.pub",
+        html : "./src/html/**/*.pug",
         sass:'./src/sass/**/*.scss',
         mainJs :'./src/js/**/*.js',
         css:'./src/css/**',
-        font:"./src/fonts/**"
+        font:"./src/fonts/**",
+        plugin:'./src/plugin/**'
     },
     
 }
@@ -68,12 +71,14 @@ const js = () =>
             bro({
                 transform: [
                     babelify.configure({ presets: ["@babel/preset-env"] }),
-                    ["uglifyify", { global: true }],
                 ],
             })
         )
         .pipe(gulp.dest(paths.pub.mainJs))
 
+const plugins =()=>
+    gulp.src(paths.dev.plugin)
+        .pipe(gulp.dest(paths.pub.plugin))
 
 // server
 const webserver = () => 
@@ -91,13 +96,14 @@ const watch = () =>
     gulp.watch(paths.watch.mainJs, js);
     gulp.watch(paths.watch.images,image);
     gulp.watch(paths.watch.font,fonts);
+    gulp.watch(paths.watch.plugin,plugins)
 
 
 // clean,image
 const prepare = gulp.series([clean, image,fonts]);
 
 // pug,sass,js
-const assets = gulp.series([pug, sass, js]);
+const assets = gulp.series([pug, sass, js ,plugins]);
 
 // 서버on watch
 const postDev = gulp.parallel([webserver, watch]);
