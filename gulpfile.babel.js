@@ -10,7 +10,7 @@ import babelify from "babelify";
 const paths = {
     dev:{
         images :"./src/images/**",
-        html : "./src/html/*.html",
+        html : "./src/html/**",
         sass:'./src/sass/*.scss',
         mainJs :'./src/js/**/*.js',
         css:'./src/css/**',
@@ -55,9 +55,7 @@ const html = () =>
 
 // sass
 const sass = () => 
-    gulp.src(paths.dev.sass)
-        .pipe(gulp.dest(paths.pub.sass2))
-
+  
     gulp.src(paths.dev.sass)
         .pipe(gulpsass())
         .pipe(autoprefixer())
@@ -66,6 +64,12 @@ const sass = () =>
     gulp.src(paths.dev.css)
         .pipe(autoprefixer())
         .pipe(gulp.dest(paths.pub.sass))
+
+// sass2 
+const sass2 =()=>
+    gulp.src(paths.dev.sass)
+    .pipe(autoprefixer())
+    .pipe(gulp.dest(paths.pub.sass2))
 // js
 const js = () => 
     gulp.src(paths.dev.mainJs)
@@ -94,6 +98,7 @@ const webserver = () =>
 const watch = () => 
     gulp.watch(paths.watch.html, html);
     gulp.watch(paths.watch.sass, sass);
+    gulp.watch(paths.watch.sass, sass2);
     gulp.watch(paths.watch.css, sass);
     gulp.watch(paths.watch.mainJs, js);
     gulp.watch(paths.watch.images,image);
@@ -105,7 +110,7 @@ const watch = () =>
 const prepare = gulp.series([clean, image,fonts]);
 
 // pug,sass,js
-const assets = gulp.series([html, sass, js ,plugins]);
+const assets = gulp.series([html, sass,sass2, js ,plugins]);
 
 // 서버on watch
 const postDev = gulp.parallel([webserver, watch]);
