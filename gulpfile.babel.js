@@ -1,5 +1,4 @@
 import gulp from "gulp";
-import gulppug from "gulp-pug";
 import gulpsass from "gulp-sass";
 import del from "del";
 import webs from "gulp-connect";
@@ -16,15 +15,16 @@ const paths = {
         mainJs :'./src/js/**/*.js',
         css:'./src/css/**',
         font:'./src/fonts/**',
-        plugin:'./src/plugin/**'
+        plugin:'./src/lib/**'
     },
     pub:{
         images :"./dist/images",
         html : "./dist",
         sass:'./dist/css',
+        sass2:'./dist/sass',
         mainJs :'./dist/js',
         font:'./dist/fonts',
-        plugin:'./dist/plugin'
+        plugin:'./dist/lib'
     },
     watch:{
         images :"./src/images/**",
@@ -33,7 +33,7 @@ const paths = {
         mainJs :'./src/js/**/*.js',
         css:'./src/css/**',
         font:"./src/fonts/**",
-        plugin:'./src/plugin/**'
+        plugin:'./src/lib/**'
     },
     
 }
@@ -55,6 +55,9 @@ const html = () =>
 
 // sass
 const sass = () => 
+    gulp.src(paths.dev.sass)
+        .pipe(gulp.dest(paths.pub.sass2))
+
     gulp.src(paths.dev.sass)
         .pipe(gulpsass())
         .pipe(autoprefixer())
