@@ -1,11 +1,17 @@
 @mixin mq($size) {
-    @if $size == '1024' {
-        @media (max-width:1024px){
+    @if $size == '1023' {
+        @media (max-width:1023px){
             @content;
         }
-    }@else if $size == '670' {
-        @media (max-width:670px){
+    }@else if $size == '639'{
+        @media (max-width:639px){
             @content;
         }
     }
+}
+
+@mixin flex_center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

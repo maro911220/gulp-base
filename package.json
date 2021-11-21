@@ -14,6 +14,7 @@
     "@babel/register": "^7.13.16",
     "gulp": "^4.0.2",
     "gulp-csso": "^4.0.1",
+    "gulp-file-include": "^2.3.0",
     "gulp-pug": "^4.0.1",
     "gulp-sass": "^4.1.0"
   },
@@ -29,7 +30,6 @@
     "gulp-webserver": "^0.9.1",
     "uglify-js": "^3.13.7",
     "uglifyify": "^5.0.2"
-    
   },
   "browserslist": [
     "last 2 versions"
