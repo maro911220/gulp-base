@@ -1,123 +1,90 @@
 import gulp from "gulp";
-import gulpsass from "gulp-sass";
+import gulpInclude from 'gulp-file-include'
 import del from "del";
-import webs from "gulp-connect";
-import img from "gulp-imagemin";
-import autoprefixer from "gulp-autoprefixer";
+import image from "gulp-image";
+import ws from "gulp-webserver";
+import gulpAutoprefixer from "gulp-autoprefixer";
 import bro from "gulp-bro";
 import babelify from "babelify";
-import include from 'gulp-file-include';
+const sass = require("gulp-sass")(require("node-sass"));
 
-const paths = {
-    dev: {
-        images: "./src/images/**",
-        html: "./src/html/*",
-        sass: './src/sass/*.scss',
-        mainJs: './src/js/**/*.js',
-        css: './src/css/**',
-        font: './src/fonts/**',
-        plugin: './src/lib/**'
+// 경로 설정 
+const routes ={
+    html:{
+        watch:"src/**/*.html",
+        src:"src/*.html",
+        dest:"build"
     },
-    pub: {
-        images: "./dist/images",
-        html: "./dist",
-        sass: './dist/css',
-        mainJs: './dist/js',
-        font: './dist/fonts',
-        plugin: './dist/lib'
+    img:{
+        src:"src/img/*",
+        dest:"build/img"
     },
-    watch: {
-        images: "./src/images/**",
-        html: "./src/html/**/*.html",
-        sass: './src/sass/**/*.scss',
-        mainJs: './src/js/**/*.js',
-        css: './src/css/**',
-        font: "./src/fonts/**",
-        plugin: './src/lib/**'
+    sass:{
+        watch:"src/sass/**",
+        src:"src/sass/*.scss",
+        dest:"build/css"
     },
-
+    js:{
+        watch:"src/js/*",
+        src:"src/js/*",
+        dest:"build/js"
+    },
+    lib:{
+        src:"src/lib/*",
+        dest:"build/lib"
+    }
 }
 
-// clean
-const clean = () =>
-    del(["dist/*"]);
-// fonts
-const fonts = () =>
-    gulp.src(paths.dev.font).pipe(gulp.dest(paths.pub.font))
-// image
-const image = () =>
-    gulp.src(paths.dev.images).pipe(img()).pipe(gulp.dest(paths.pub.images));
+const clean = ()=> 
+    del(["build"]);
 
+const html =()=>
+    gulp
+        .src(routes.html.src)
+        .pipe(gulpInclude())
+        .pipe(gulp.dest(routes.html.dest));
 
-// sass
-const sass = () =>
+const img  =()=>
+     gulp
+        .src(routes.img.src)
+        .pipe(image())
+        .pipe(gulp.dest(routes.img.dest));
 
-    gulp.src(paths.dev.sass)
-    .pipe(gulpsass())
-    .pipe(autoprefixer())
-    .pipe(gulp.dest(paths.pub.sass))
+const style =()=>
+    gulp.src(routes.sass.src)
+        .pipe(sass())
+        .pipe(gulpAutoprefixer())
+        .pipe(gulp.dest(routes.sass.dest))
 
-gulp.src(paths.dev.css)
-    .pipe(autoprefixer())
-    .pipe(gulp.dest(paths.pub.sass))
-
-// js
 const js = () =>
-    gulp.src(paths.dev.mainJs)
-    .pipe(
-        bro({
-            transform: [
-                babelify.configure({
-                    presets: ["@babel/preset-env"]
-                }),
-            ],
-        })
-    )
-    .pipe(gulp.dest(paths.pub.mainJs))
-
-const plugins = () =>
-    gulp.src(paths.dev.plugin)
-    .pipe(gulp.dest(paths.pub.plugin))
-
-// server
-const webserver = () =>
-    webs.server({
-        root: paths.pub.html, //루트 위치
-        livereload: true,
-        port: 8001,
-    });
-
-// include 
-const includes = () =>
-    gulp.src([
-        paths.dev.html,
-        "!" + "./src/html/include*"], 
-    )
-    .pipe(include({
-        prefix: '@@',
-        basepath: '@file'
+    gulp.src(routes.js.src)
+    .pipe(bro({
+        transform: [
+            babelify.configure({
+                presets: ["@babel/preset-env"],
+            })
+        ]
     }))
-    .pipe(gulp.dest(paths.pub.html));
+    .pipe(gulp.dest(routes.js.dest))
 
-// watch
-const watch = () =>
-gulp.watch(paths.watch.html, includes);
-gulp.watch(paths.watch.sass, sass);
-gulp.watch(paths.watch.css, sass);
-gulp.watch(paths.watch.mainJs, js);
-gulp.watch(paths.watch.images, image);
-gulp.watch(paths.watch.font, fonts);
-gulp.watch(paths.watch.plugin, plugins)
+const lib = ()=>
+    gulp.src(routes.lib.src)
+        .pipe(gulp.dest(routes.lib.dest))
+
+const webserver = () =>
+    gulp
+        .src("build")
+        .pipe(ws({livereload:true, open:true}));
+
+const watch =()=>
+    gulp.watch(routes.html.watch, html)
+    gulp.watch(routes.sass.watch, style)
+    gulp.watch(routes.js.watch, js)
+
+    
+const prepare = gulp.series([clean,img]);
+const assets = gulp.series([html,style,js,lib]);
+const postDev = gulp.parallel([webserver, watch])
 
 
-// clean,image
-const prepare = gulp.series([clean, image, fonts]);
-
-// pug,sass,js
-const assets = gulp.series([ includes, sass,  js, plugins]);
-
-// 서버on watch
-const postDev = gulp.parallel([webserver, watch]);
-
-// 순서대로 실행
-export const dev = gulp.series([prepare, assets, postDev]);
+export const dev = gulp.series([prepare,assets,postDev]);
